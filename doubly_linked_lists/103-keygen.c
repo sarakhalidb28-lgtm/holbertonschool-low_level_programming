@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 /**
- * main - generates a key for crackme5
+ * main - generates a valid key for crackme5
  * @argc: argument count
  * @argv: argument vector
  *
@@ -11,7 +11,8 @@
 int main(int argc, char *argv[])
 {
 	char *username;
-	int i, sum = 0;
+	unsigned long hash = 0;
+	int i;
 
 	if (argc != 2)
 		return (1);
@@ -19,9 +20,9 @@ int main(int argc, char *argv[])
 	username = argv[1];
 
 	for (i = 0; username[i]; i++)
-		sum += username[i];
+		hash = hash * 31 + username[i];
 
-	printf("%d\n", sum);
+	printf("%lu\n", hash);
 
 	return (0);
 }
