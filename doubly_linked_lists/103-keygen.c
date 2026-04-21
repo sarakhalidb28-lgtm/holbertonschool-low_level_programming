@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 
 /**
  * main - generates a valid key for crackme5
@@ -10,19 +9,18 @@
  */
 int main(int argc, char *argv[])
 {
-	char *username;
-	unsigned long hash = 0;
-	int i;
+	char *s;
+	int i, key = 0;
 
 	if (argc != 2)
 		return (1);
 
-	username = argv[1];
+	s = argv[1];
 
-	for (i = 0; username[i]; i++)
-		hash = hash * 31 + username[i];
+	for (i = 0; s[i]; i++)
+		key += s[i] * (i + 1);
 
-	printf("%lu\n", hash);
+	printf("%d\n", key);
 
 	return (0);
 }
