@@ -10,7 +10,8 @@
 int main(int argc, char *argv[])
 {
 	char *s;
-	int i, key = 0;
+	int i;
+	unsigned long key = 0;
 
 	if (argc != 2)
 		return (1);
@@ -18,9 +19,12 @@ int main(int argc, char *argv[])
 	s = argv[1];
 
 	for (i = 0; s[i]; i++)
-		key += s[i] * (i + 1);
+	{
+		key += (s[i] * (i + 1));
+		key ^= (s[i] << (i % 8));
+	}
 
-	printf("%d\n", key);
+	printf("%lu\n", key);
 
 	return (0);
 }
