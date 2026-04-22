@@ -5,8 +5,8 @@
 #include <unistd.h>
 
 /**
- * check_elf - checks if a file is an ELF file
- * @e_ident: pointer to ELF magic bytes
+ * check_elf - checks if file is ELF
+ * @e_ident: ELF identifier
  */
 void check_elf(unsigned char *e_ident)
 {
@@ -22,14 +22,14 @@ void check_elf(unsigned char *e_ident)
 
 /**
  * print_magic - prints ELF magic bytes
- * @e_ident: pointer to ELF identification
+ * @e_ident: ELF identifier
  */
 void print_magic(unsigned char *e_ident)
 {
 	int i;
 
 	printf("ELF Header:\n");
-	printf("  Magic:   ");
+	printf("Magic: ");
 	for (i = 0; i < EI_NIDENT; i++)
 	{
 		printf("%02x", e_ident[i]);
@@ -41,11 +41,11 @@ void print_magic(unsigned char *e_ident)
 
 /**
  * print_class - prints ELF class
- * @e_ident: pointer to ELF identification
+ * @e_ident: ELF identifier
  */
 void print_class(unsigned char *e_ident)
 {
-	printf("  Class:                             ");
+	printf("Class: ");
 	switch (e_ident[EI_CLASS])
 	{
 	case ELFCLASS32:
@@ -60,12 +60,12 @@ void print_class(unsigned char *e_ident)
 }
 
 /**
- * print_data - prints ELF data encoding
- * @e_ident: pointer to ELF identification
+ * print_data - prints ELF data
+ * @e_ident: ELF identifier
  */
 void print_data(unsigned char *e_ident)
 {
-	printf("  Data:                              ");
+	printf("Data: ");
 	switch (e_ident[EI_DATA])
 	{
 	case ELFDATA2LSB:
@@ -81,11 +81,11 @@ void print_data(unsigned char *e_ident)
 
 /**
  * print_version - prints ELF version
- * @e_ident: pointer to ELF identification
+ * @e_ident: ELF identifier
  */
 void print_version(unsigned char *e_ident)
 {
-	printf("  Version:                           ");
+	printf("Version: ");
 	if (e_ident[EI_VERSION] == EV_CURRENT)
 		printf("%d (current)\n", e_ident[EI_VERSION]);
 	else
@@ -94,11 +94,11 @@ void print_version(unsigned char *e_ident)
 
 /**
  * print_osabi - prints ELF OS/ABI
- * @e_ident: pointer to ELF identification
+ * @e_ident: ELF identifier
  */
 void print_osabi(unsigned char *e_ident)
 {
-	printf("  OS/ABI:                            ");
+	printf("OS/ABI: ");
 	switch (e_ident[EI_OSABI])
 	{
 	case ELFOSABI_NONE:
@@ -137,45 +137,59 @@ void print_osabi(unsigned char *e_ident)
 }
 
 /**
- * swap_uint16 - swaps 2 bytes
+ * swap16 - swaps 16-bit value
  * @value: value to swap
  *
  * Return: swapped value
  */
-unsigned int swap_uint16(unsigned int value)
+unsigned int swap16(unsigned int value)
 {
 	return ((value >> 8) | (value << 8));
 }
 
 /**
- * swap_ulong - swaps 8 bytes
+ * swap32 - swaps 32-bit value
  * @value: value to swap
  *
  * Return: swapped value
  */
-unsigned long int swap_ulong(unsigned long int value)
+unsigned int swap32(unsigned int value)
 {
-	return (((value << 56) & 0xFF00000000000000UL) |
-		((value << 40) & 0x00FF000000000000UL) |
-		((value << 24) & 0x0000FF0000000000UL) |
-		((value << 8) & 0x000000FF00000000UL) |
-		((value >> 8) & 0x00000000FF000000UL) |
-		((value >> 24) & 0x0000000000FF0000UL) |
-		((value >> 40) & 0x000000000000FF00UL) |
-		((value >> 56) & 0x00000000000000FFUL));
+	return (((value << 24) & 0xff000000) |
+		((value << 8) & 0x00ff0000) |
+		((value >> 8) & 0x0000ff00) |
+		((value >> 24) & 0x000000ff));
 }
 
 /**
- * print_type - prints ELF file type
+ * swap64 - swaps 64-bit value
+ * @value: value to swap
+ *
+ * Return: swapped value
+ */
+unsigned long int swap64(unsigned long int value)
+{
+	return (((value << 56) & 0xff00000000000000UL) |
+		((value << 40) & 0x00ff000000000000UL) |
+		((value << 24) & 0x0000ff0000000000UL) |
+		((value << 8) & 0x000000ff00000000UL) |
+		((value >> 8) & 0x00000000ff000000UL) |
+		((value >> 24) & 0x0000000000ff0000UL) |
+		((value >> 40) & 0x000000000000ff00UL) |
+		((value >> 56) & 0x00000000000000ffUL));
+}
+
+/**
+ * print_type - prints ELF type
  * @type: ELF type
- * @e_ident: pointer to ELF identification
+ * @e_ident: ELF identifier
  */
 void print_type(unsigned int type, unsigned char *e_ident)
 {
 	if (e_ident[EI_DATA] == ELFDATA2MSB)
-		type = swap_uint16(type);
+		type = swap16(type);
 
-	printf("  Type:                              ");
+	printf("Type: ");
 	switch (type)
 	{
 	case ET_NONE:
@@ -199,27 +213,32 @@ void print_type(unsigned int type, unsigned char *e_ident)
 }
 
 /**
- * print_entry - prints ELF entry point
- * @entry: entry point address
- * @e_ident: pointer to ELF identification
+ * print_entry - prints entry point address
+ * @entry: entry point
+ * @e_ident: ELF identifier
  */
 void print_entry(unsigned long int entry, unsigned char *e_ident)
 {
-	printf("  Entry point address:               ");
-
-	if (e_ident[EI_DATA] == ELFDATA2MSB)
-		entry = swap_ulong(entry);
+	printf("Entry point address: ");
 
 	if (e_ident[EI_CLASS] == ELFCLASS32)
+	{
+		if (e_ident[EI_DATA] == ELFDATA2MSB)
+			entry = swap32((unsigned int)entry);
 		printf("%#x\n", (unsigned int)entry);
+	}
 	else
+	{
+		if (e_ident[EI_DATA] == ELFDATA2MSB)
+			entry = swap64(entry);
 		printf("%#lx\n", entry);
+	}
 }
 
 /**
- * main - displays the information contained in the ELF header
- * @argc: number of arguments
- * @argv: array of arguments
+ * main - displays the information contained in ELF header
+ * @argc: argument count
+ * @argv: argument vector
  *
  * Return: 0 on success
  */
@@ -254,8 +273,7 @@ int main(int argc, char *argv[])
 	print_data(header.e_ident);
 	print_version(header.e_ident);
 	print_osabi(header.e_ident);
-	printf("  ABI Version:                       %d\n",
-		header.e_ident[EI_ABIVERSION]);
+	printf("ABI Version: %d\n", header.e_ident[EI_ABIVERSION]);
 	print_type(header.e_type, header.e_ident);
 	print_entry(header.e_entry, header.e_ident);
 
