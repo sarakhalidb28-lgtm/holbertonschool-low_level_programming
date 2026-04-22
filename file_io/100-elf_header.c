@@ -183,9 +183,9 @@ unsigned long int swap64(unsigned long int value)
 void print_type(unsigned int type, unsigned char *e_ident)
 {
 	if (e_ident[EI_DATA] == ELFDATA2MSB)
-		type = swap16(type);
+		type >>= 8;
 
-	printf("  Type:                              ");
+	printf("Type: ");
 	switch (type)
 	{
 	case ET_NONE:
