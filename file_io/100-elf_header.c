@@ -29,13 +29,9 @@ void print_magic(unsigned char *e_ident)
 	int i;
 
 	printf("ELF Header:\n");
-	printf("Magic: ");
+	printf("  Magic:   ");
 	for (i = 0; i < EI_NIDENT; i++)
-	{
-		printf("%02x", e_ident[i]);
-		if (i != EI_NIDENT - 1)
-			printf(" ");
-	}
+		printf("%02x%s", e_ident[i], i == EI_NIDENT - 1 ? "" : " ");
 	printf("\n");
 }
 
@@ -45,7 +41,7 @@ void print_magic(unsigned char *e_ident)
  */
 void print_class(unsigned char *e_ident)
 {
-	printf("Class: ");
+	printf("  Class:                             ");
 	switch (e_ident[EI_CLASS])
 	{
 	case ELFCLASS32:
@@ -65,7 +61,7 @@ void print_class(unsigned char *e_ident)
  */
 void print_data(unsigned char *e_ident)
 {
-	printf("Data: ");
+	printf("  Data:                              ");
 	switch (e_ident[EI_DATA])
 	{
 	case ELFDATA2LSB:
@@ -85,7 +81,7 @@ void print_data(unsigned char *e_ident)
  */
 void print_version(unsigned char *e_ident)
 {
-	printf("Version: ");
+	printf("  Version:                           ");
 	if (e_ident[EI_VERSION] == EV_CURRENT)
 		printf("%d (current)\n", e_ident[EI_VERSION]);
 	else
@@ -98,7 +94,7 @@ void print_version(unsigned char *e_ident)
  */
 void print_osabi(unsigned char *e_ident)
 {
-	printf("OS/ABI: ");
+	printf("  OS/ABI:                            ");
 	switch (e_ident[EI_OSABI])
 	{
 	case ELFOSABI_NONE:
@@ -189,7 +185,7 @@ void print_type(unsigned int type, unsigned char *e_ident)
 	if (e_ident[EI_DATA] == ELFDATA2MSB)
 		type = swap16(type);
 
-	printf("Type: ");
+	printf("  Type:                              ");
 	switch (type)
 	{
 	case ET_NONE:
@@ -219,8 +215,7 @@ void print_type(unsigned int type, unsigned char *e_ident)
  */
 void print_entry(unsigned long int entry, unsigned char *e_ident)
 {
-	printf("Entry point address: ");
-
+	printf("  Entry point address:               ");
 	if (e_ident[EI_CLASS] == ELFCLASS32)
 	{
 		if (e_ident[EI_DATA] == ELFDATA2MSB)
@@ -273,7 +268,8 @@ int main(int argc, char *argv[])
 	print_data(header.e_ident);
 	print_version(header.e_ident);
 	print_osabi(header.e_ident);
-	printf("ABI Version: %d\n", header.e_ident[EI_ABIVERSION]);
+	printf("  ABI Version:                       %d\n",
+		header.e_ident[EI_ABIVERSION]);
 	print_type(header.e_type, header.e_ident);
 	print_entry(header.e_entry, header.e_ident);
 
